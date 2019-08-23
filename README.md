@@ -1,18 +1,18 @@
 ### Initial project setup
 
 1. Create a new android studio project with `app` android application module
-2. Add an `Application` class to module.
+2. Add an `Application` class to module: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app/src/main/java/com/example/myapplication/MyApplication.java)
 3. Add an android library (`mylibrary`) module
-4. In `mylibrary` module add a string resource: `<string name="library_string">some library string</string>`
-5. In `mylibrary` module add a class that loads string resource
-6. In Application class make sure library loads string resource
-7. Update `app/build.gradle` to depend on `mylibrary`
+4. In `mylibrary` module add a string resource: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/mylibrary/src/main/res/values/strings.xml#L2)
+5. In `mylibrary` module add a class that loads string resource: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/mylibrary/src/main/java/com/example/mylibrary/LibraryClass.java)
+6. In Application class make sure library loads string resource: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app/src/main/java/com/example/myapplication/MyApplication.java#L12)
+7. Update `app/build.gradle` to depend on `mylibrary`: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app/build.gradle#L23)
 8. You can now run your app `./gradlew app:installDebug`
 9. You can also run the auto-created instrumentation test in `app` module and see test pass `./gradlew app:connectedDebugAndroidTest`
 
 ### Now things get fun, we are going to create a test-only module:
 10. Back in Android Studio's project structure dialog, create a new "android library" module. Call it `app_tests`
-11. Change the plugin type in `app_tests/build.gradle` and link to `app` module by adding these lines in the correct block. **The key is that because of some specific test we want to add, this module needs to depend directly on `app` and `mylibrary`**
+11. Change the plugin type in `app_tests/build.gradle` and link to `app` module by adding these lines in the correct block. **The key is that because of some specific test we want to add, this module needs to depend directly on `app` and `mylibrary`** [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app_tests/build.gradle)
 
 ```
 apply plugin: 'com.android.library' // REMOVE THIS
@@ -41,7 +41,7 @@ dependencies {
    implementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 ```
-12. Move the generated instrumentation test in the `app_test/src/androidTest` into the main directory `app_test/src/main`
+12. Move the generated instrumentation test in the `app_test/src/androidTest` into the main directory `app_test/src/main`: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app_tests/src/main/java/com/example/app_tests/ExampleInstrumentedTest.java)
 
 13. Now you are ready to run the instrumentation test in your new test-only `app_test` module:
 `$ ./gradlew clean mylibrary:connectedDebugAndroidTest`
