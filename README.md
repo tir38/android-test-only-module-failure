@@ -1,3 +1,15 @@
+## TL;DR
+
+Instrumentation tests in [test-only module](https://developer.android.com/studio/test#use_separate_test_modules_for_instrumented_tests) fail to compile. But same test in `app` module run fine.
+
+1. run `$ ./gradlew app:connectedDebugAndroidTest` and see tests pass
+2. run `$ ./gradlew app_tests:connectedDebugAndroidTest` and see build crash
+
+
+## The details
+
+*(I've already done most of this for you in this repo)*
+ 
 ### Initial project setup
 
 1. Create a new android studio project with `app` android application module
@@ -10,7 +22,9 @@
 8. You can now run your app `./gradlew app:installDebug`
 9. You can also run the auto-created instrumentation test in `app` module and see test pass `./gradlew app:connectedDebugAndroidTest`
 
-### Now things get fun, we are going to create a test-only module:
+*Congratulations, you have a running/working app with a library dependency and passing tests!!!*
+
+### Now things get fun. We are going to create a test-only module:
 10. Back in Android Studio's project structure dialog, create a new "android library" module. Call it `app_tests`
 11. Change the plugin type in `app_tests/build.gradle` and link to `app` module by adding these lines in the correct block. **The key is that because of some specific test we want to add, this module needs to depend directly on `app` and `mylibrary`** [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app_tests/build.gradle)
 
@@ -41,12 +55,12 @@ dependencies {
    implementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 ```
-12. Move the generated instrumentation test in the `app_test/src/androidTest` into the main directory `app_test/src/main`: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app_tests/src/main/java/com/example/app_tests/ExampleInstrumentedTest.java)
+12. Move the generated instrumentation test in the `app_tests/src/androidTest` into the main directory `app_tests/src/main`: [here](https://github.com/tir38/android-test-only-module-failure/blob/master/app_tests/src/main/java/com/example/app_tests/ExampleInstrumentedTest.java)
 
-13. Now you are ready to run the instrumentation test in your new test-only `app_test` module:
-`$ ./gradlew clean mylibrary:connectedDebugAndroidTest`
+13. Now you are ready to run the instrumentation test in your new test-only `app_tests` module:
+`$ ./gradlew clean app_tests:connectedDebugAndroidTest`
 
-14. This test will crash:
+14. This test will fail with "tests not found" which is the classic indication that something in the app crashed before the test even started. So go looking at device logs we see:
 
 ```
 android.content.res.Resources$NotFoundException: Unable to find resource ID #0x7f0a0027
@@ -67,7 +81,7 @@ android.content.res.Resources$NotFoundException: Unable to find resource ID #0x7
     at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:780)
 ```
 
-15. Why did the test fail, you might ask. It's the same test code. It's the same app-under-test. What went wrong. Why did app not find string resource.
+15. Why did the test fail, you might ask. It's the same test code. It's the same app-under-test. What went wrong? Why did app not find string resource?
 
 16. Let's go digging..
 
@@ -75,7 +89,7 @@ android.content.res.Resources$NotFoundException: Unable to find resource ID #0x7
 
 ![1](image1.png)
 
-18. Let's just peak in the `app_test` apk (`app_tests/build/outputs/apk/debug/app_tests-debug.apk`)
+18. Let's just peak in the `app_tests` apk (`app_tests/build/outputs/apk/debug/app_tests-debug.apk`)
 
 ![2](image2.png)
 
@@ -83,4 +97,4 @@ Hey!!! `7f0a0027`
 
 ![3](image3.gif)
 
-What is the application doing looking for strings with that resource ID? The app under test is self contained in the app-debug.apk. I have no clue why this is happening
+Why is the application looking for strings with that resource ID? The app under test is self-contained in the app-debug.apk. I have no clue why this is happening.
