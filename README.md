@@ -1,6 +1,6 @@
 ## TL;DR
 
-Instrumentation tests in [test-only module](https://developer.android.com/studio/test#use_separate_test_modules_for_instrumented_tests) fail to compile. But same test in `app` module run fine.
+Instrumentation tests in [test-only module](https://developer.android.com/studio/test#use_separate_test_modules_for_instrumented_tests) fail to run (app crashes). But same test in `app` module run fine.
 
 1. run `$ ./gradlew app:connectedDebugAndroidTest` and see tests pass
 2. run `$ ./gradlew app_tests:connectedDebugAndroidTest` and see build crash
